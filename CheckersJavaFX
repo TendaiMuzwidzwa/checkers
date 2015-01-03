@@ -7,7 +7,6 @@ import java.io.FileWriter;
 import java.io.FileReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
-
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -489,7 +488,7 @@ class CheckersBoard extends Pane {
 				if(render[i][j].getPiece() == 1){
 					player1_score ++;
 				}
-				if(render[i][i].getPiece()==1){
+				if(render[i][j].getPiece() == 2){
 					player2_score ++;
 				}	
 			}
