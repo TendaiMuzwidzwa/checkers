@@ -518,7 +518,7 @@ class CheckersBoard extends Pane {
 
 	}
 	
-//Method to check if a move is possible to make
+//Method to check if a move is possible to make and makes it
 	public void tryMove(double X1, double X2,double Y1,double Y2){
 		// get a new cell width and cell height
 		cell_width = getWidth() / 8.0;
