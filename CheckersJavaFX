@@ -1,12 +1,17 @@
 //Making a game of Checkers
 //Imports
 
-//Fiona Walsh and Tendai Muzwidzwa
+//Fiona Walsh 2844174 and Tendai Muzwidzwa 2833471
 
+// imports for saving and loading the game
 import java.io.FileWriter;
-import java.io.FileReader;
+import java.io.File;
 import java.io.BufferedWriter;
-import java.io.IOException;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.util.Scanner;
+import java.lang.String;
+
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -36,189 +41,282 @@ import javafx.scene.layout.HBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
-//class defnition for reversi game
+// class defnition for reversi game
 public class Checkers extends Application {
 	// overridden init method
 	public void init() {
 		
- 		 vb_layout = new VBox();
- 		 ch_menubar = new MenuBar();
- 		 menu_file = new Menu("File");
+		// menu bar and display set up
+		 vb_layout = new VBox();
+		 ch_menubar = new MenuBar();
+		 menu_file = new Menu("File");
 		
- 		 hb_layout = new HBox();
-          hb_layout.setSpacing(40.0);
+		 hb_layout = new HBox();
+        	 hb_layout.setSpacing(35.0);
 
 		
- 		 tf_playername1 = new TextField();
- 		 lbl_playerscore1 = new Label("Player score: ");
+		 lbl_playername1 = new Label("P2: ");
+		 lbl_playerscore1 = new Label("Player score: ");
 		 
- 		 lbl_turn = new Label("Playing: ");
+		 lbl_turn = new Label("Playing: ");
 		
- 		 tf_playername2 = new TextField();
- 		 lbl_playerscore2 = new Label("Player score: ");
+		 lbl_playername2 = new Label("P1: ");
+		 lbl_playerscore2 = new Label("Player score: ");
 		
- 		 btn_draw = new Button("Draw Game");
+		 btn_draw = new Button("Draw Game");
+		 btn_click = new Button("Enter Names");
 		
 		sp_mainlayout = new StackPane();  //Initialise rc_reversi and add it to mainlayout
 		rc_checkers = new CheckersControl();
- 		ch_menubar.getMenus().addAll(menu_file);
+		ch_menubar.getMenus().addAll(menu_file);
 		sp_mainlayout.getChildren().addAll(rc_checkers);
 		
- 		hb_layout.getChildren().addAll(tf_playername1, lbl_playerscore1,lbl_turn, tf_playername2, lbl_playerscore2, btn_draw);
- 		vb_layout.getChildren().addAll(ch_menubar, hb_layout, sp_mainlayout);
+		hb_layout.getChildren().addAll(lbl_playername2, lbl_playerscore2,lbl_turn, lbl_playername1, lbl_playerscore1, btn_draw, btn_click);
+		vb_layout.getChildren().addAll(ch_menubar, hb_layout, sp_mainlayout);
 		
- 		VBox.setVgrow(sp_mainlayout, Priority.ALWAYS); 
+		VBox.setVgrow(sp_mainlayout, Priority.ALWAYS); 
 		
- 		 mi_new = new MenuItem("New Game");
- 		 mi_save = new MenuItem("Save Game");
- 		 mi_load = new MenuItem("Load Game");
- 		 mi_quit = new MenuItem("Quit Game"); 
- 		 menu_file.getItems().addAll(mi_new, mi_save, mi_load, mi_quit);
+		 mi_new = new MenuItem("New Game");
+		 mi_save = new MenuItem("Save Game");
+		 mi_load = new MenuItem("Load Game");
+		 mi_quit = new MenuItem("Quit Game"); 
+		 menu_file.getItems().addAll(mi_new, mi_save, mi_load, mi_quit);
 		
- 		 mi_new.setOnAction(new EventHandler<ActionEvent>() {
+		 mi_new.setOnAction(new EventHandler<ActionEvent>() {
+				
+		// overridden method to handle an event for this menu item
+			@Override
+			public void handle(ActionEvent event) {
+				rc_checkers.resetGame();
+				 lbl_playername2.setText("P1: ");
+				 lbl_playername1.setText("P2: ");
+
+				 System.out.println("works reset");
+			}
+		});
+				 
+				
+		mi_save.setOnAction(new EventHandler<ActionEvent>() {
 				
 				// overridden method to handle an event for this menu item
- 			@Override
- 			public void handle(ActionEvent event) {
- 				rc_checkers.resetGame();
- 				 System.out.println("works reset");
- 			}
- 		});
+			@Override
+			public void handle(ActionEvent event) {
+				rc_checkers.saveGame();
+			}
+		});
 				 
 				
- 		mi_save.setOnAction(new EventHandler<ActionEvent>() {
-				
-				// overridden method to handle an event for this menu item
- 			@Override
- 			public void handle(ActionEvent event) {
- 				rc_checkers.saveGame();
- 			}
- 		});
-				 
-				
- 		mi_load.setOnAction(new EventHandler<ActionEvent>() {
+		mi_load.setOnAction(new EventHandler<ActionEvent>() {
 				
 			// overridden method to handle an event for this menu item
- 			@Override
- 			public void handle(ActionEvent event) {
- 				rc_checkers.loadGame();
- 			}
- 		});
+			@Override
+			public void handle(ActionEvent event) {
+				rc_checkers.loadGame();
+			}
+		});
 				 
 				
- 		 mi_quit.setOnAction(new EventHandler<ActionEvent>() {
+		 mi_quit.setOnAction(new EventHandler<ActionEvent>() {
 				
 			// overridden method to handle an event for this menu item
- 			@Override
- 			public void handle(ActionEvent event) {
- 				 stop();
- 				 Platform.exit();
- 			}
- 		});
+			@Override
+			public void handle(ActionEvent event) {
+				 stop();
+				 Platform.exit();
+			}
+		});
 
 
- 	btn_draw.setOnAction(new EventHandler<ActionEvent>() {
+		btn_draw.setOnAction(new EventHandler<ActionEvent>() {
 
 		// overridden method to handle an event for this menu item
- 		@Override
- 		public void handle(ActionEvent event) {
+		@Override
+		public void handle(ActionEvent event) {
 		
- 			final Stage dialogStage = new Stage();
- 		     dialogStage.initModality(Modality.APPLICATION_MODAL);
- 		     dialogStage.setTitle("Draw Game?");
+			// pop up code for drawing the game
+		                final Stage dialogStage = new Stage();
+		                dialogStage.initModality(Modality.APPLICATION_MODAL);
+		                dialogStage.setTitle("Draw Game?");
 
- 		     Label drawLabel = new Label("Do both Players agree to draw the game?");
- 		     drawLabel.setAlignment(Pos.BASELINE_CENTER);
+		                Label drawLabel = new Label("Do both Players agree to draw the game?");
+		                drawLabel.setAlignment(Pos.BASELINE_CENTER);
 
- 		     Button yesBtn = new Button("Yes");
- 		     yesBtn.setOnAction(new EventHandler<ActionEvent>() {
+		                Button yesBtn = new Button("Yes");
+		                yesBtn.setOnAction(new EventHandler<ActionEvent>() {
 
- 		     @Override
- 		     	public void handle(ActionEvent arg0) {
+		                    @Override
+		                    public void handle(ActionEvent arg0) {
 		                        
- 		    	 	stop();
- 		    	 	dialogStage.close();
- 		     		}
- 		        });
- 		     
- 		      Button noBtn = new Button("No");
+		                    stop();
+		                        dialogStage.close();
+		                        
+		                    	// pop code to let the player know the games ended in a draw
+		                    	
+		                    	final Stage dialogStage = new Stage();
+				                dialogStage.initModality(Modality.APPLICATION_MODAL);
+				                dialogStage.setTitle("Checkers");
 
- 		      noBtn.setOnAction(new EventHandler<ActionEvent>() {
+				                Label drwLabel = new Label("The Game Has Ended in a Draw");
+				                drwLabel.setAlignment(Pos.BASELINE_CENTER);
+				               
+				                HBox hBox = new HBox();
+				                hBox.setAlignment(Pos.BASELINE_CENTER);
+				                hBox.setSpacing(40.0);
 
- 		     @Override
- 		         public void handle(ActionEvent arg0) {
- 		             dialogStage.close();
+				                VBox vBox = new VBox();
+				                vBox.setSpacing(40.0);
+				                vBox.getChildren().addAll(drwLabel, hBox);
+				                dialogStage.setScene(new Scene(vBox));
+				                dialogStage.show();
+		                  
+				               System.out.println("Game has ended in a draw");
 
- 		             }
- 		        });
+		                    }
+		                });
+		                Button noBtn = new Button("No");
+
+		                noBtn.setOnAction(new EventHandler<ActionEvent>() {
+
+		                    @Override
+		                    public void handle(ActionEvent arg0) {
+		                        dialogStage.close();
+
+		                    }
+		                });
 			
- 		       HBox hBox = new HBox();
- 		       hBox.setAlignment(Pos.BASELINE_CENTER);
- 		       hBox.setSpacing(40.0);
- 		       hBox.getChildren().addAll(yesBtn, noBtn);
+		                HBox hBox = new HBox();
+		                hBox.setAlignment(Pos.BASELINE_CENTER);
+		                hBox.setSpacing(40.0);
+		                hBox.getChildren().addAll(yesBtn, noBtn);
 
- 		       VBox vBox = new VBox();
- 		       vBox.setSpacing(40.0);
- 		       vBox.getChildren().addAll(drawLabel, hBox);
+		                VBox vBox = new VBox();
+		                vBox.setSpacing(40.0);
+		                vBox.getChildren().addAll(drawLabel, hBox);
 
- 		       dialogStage.setScene(new Scene(vBox));
- 		       dialogStage.show();
- 		}
- 	});		
-}
+		                dialogStage.setScene(new Scene(vBox));
+		                dialogStage.show();
+		                
+		}
+		});
+	
+		btn_click.setOnAction(new EventHandler <ActionEvent> (){
+			@Override
+			public void handle (ActionEvent event){
+			
+			// pop up cade to enter players names.
+				
+			 final Stage dialogStage = new Stage();
+	                dialogStage.initModality(Modality.APPLICATION_MODAL);
+	                dialogStage.setTitle("Player Names");
+
+	                Label nameLabel = new Label("Please Enter Your Names: ");
+	                Label enterlabel = new Label("Press enter after each name input. ");
+	                nameLabel.setAlignment(Pos.BASELINE_CENTER);
+	                enterlabel.setAlignment(Pos.BASELINE_CENTER);
+
+	                Label p1 = new Label("Player 1 : ");
+	                p1.setAlignment(Pos.CENTER_LEFT);
+	                TextField p1tf = new TextField();
+	                p1tf.setOnAction(new EventHandler<ActionEvent>() {
+
+	                    @Override
+	                    public void handle(ActionEvent arg0) {
+	                        
+	                    	 lbl_playername2.setText("P1: " + p1tf.getText());
+
+	                    }
+	                });
+	                Label p2 = new Label("Player 2 : ");
+	                p2.setAlignment(Pos.CENTER_RIGHT);
+	                TextField p2tf = new TextField();
+
+	                p2tf.setOnAction(new EventHandler<ActionEvent>() {
+
+	                    @Override
+	                    public void handle(ActionEvent arg0) {
+	                    	lbl_playername1.setText("P2: " + p2tf.getText());
+	                    	
+	                    	dialogStage.close();
+	                    }
+	                });
+	               
+		
+	                HBox hBox = new HBox();
+	                hBox.setAlignment(Pos.BOTTOM_CENTER);
+	                hBox.setSpacing(30.0);
+	                hBox.getChildren().addAll(p1,p1tf, p2, p2tf);
+
+	                VBox vBox = new VBox();
+	                vBox.setSpacing(25.0);
+	                vBox.getChildren().addAll(nameLabel, enterlabel, hBox);
+
+	                dialogStage.setScene(new Scene(vBox));
+	                dialogStage.show();
+	                
+	}
+	});
+	
+	}
+	
 	
 	// overridden start method
 	public void start(Stage primaryStage) {
 		//Set title and scene
-		primaryStage.setTitle("Checkers");
- 		primaryStage.setScene(new Scene(vb_layout, 800, 800));
+	primaryStage.setTitle("Checkers");
+		primaryStage.setScene(new Scene(vb_layout, 800, 800));
 
 		primaryStage.show();
 	}
 	
-	
+	// overridden stop method
 	public void stop() {
 		
-	}
+}
 	
+	// entry point into our program for launching our javafx applicaton
 	public static void main(String[] args) {
 		launch(args);
 
+		
+		
 	}
 
 	// private fields for a stack pane and a checkers control
 	private StackPane sp_mainlayout;
- 	private CheckersControl rc_checkers;
- 	private VBox vb_layout;
- 	private HBox hb_layout;
- 	private TextField tf_playername1, tf_playername2;
- 	private Label lbl_turn, lbl_playerscore1, lbl_playerscore2;
- 	private Button btn_draw;
+	public static CheckersControl rc_checkers; //***
+	private VBox vb_layout;
+	private HBox hb_layout;
+	public static Label lbl_turn, lbl_playerscore1, lbl_playerscore2, lbl_playername1, lbl_playername2; //**
+	private Button btn_draw, btn_click;
 	
- 	private MenuBar ch_menubar;
- 	private Menu menu_file;
- 	private MenuItem mi_new, mi_save, mi_load, mi_quit;
+	private MenuBar ch_menubar;
+	private Menu menu_file;
+	private MenuItem mi_new, mi_save, mi_load, mi_quit;
 }
 
-
+// class definition for a custom checkers control
 class CheckersControl extends Control {
+	// constructor for the class
 
- 	public void resetGame(){
- 		c_board.resetGame();
- 	}
-	
- 	public void loadGame(){
- 		c_board.loadGame();
- 	}
-
- 	public void saveGame(){
- 		c_board.saveGame();
- 	}
-	
+	public int score1() {
+		return c_board.score1();
+	}
+	public int score2() {
+		return	c_board.score2();
+	}
+	public void resetGame(){
+		c_board.resetGame();
+	}
+	public void loadGame(){
+		c_board.loadGame();
+	}
+	public void saveGame(){
+		c_board.saveGame();
+	}
 	public CheckersControl() {
 		setSkin(new CheckersControlSkin(this));
 		
-	
+		
 		c_board = new CheckersBoard();
 		getChildren().addAll(c_board);
 		
@@ -227,42 +325,43 @@ class CheckersControl extends Control {
 		setOnMouseClicked(new EventHandler <MouseEvent> (){
 		@Override
 		public void handle (MouseEvent event){
-			if(c_board.in_play()==true){
-				if(chosenPiece==false){ 
-					//Gets startX and startY
-					startX=event.getX(); 
-					startY=event.getY();
-					
-					if(c_board.getPiece((int)(startX/(getWidth()/8.0)), (int)(startY/(getHeight()/8.0)))
-						== c_board.current_player()) {
+					if(c_board.in_play()==true){
+						if(chosenPiece==false){ 
+							//Gets startX and startY
+							startX=event.getX(); 
+							startY=event.getY();
+								
+						if(c_board.getPiece((int)(startX/(getWidth()/8.0)), (int)(startY/(getHeight()/8.0))) == c_board.current_player()) {
 							chosenPiece = true;
 						}
-					}
-			else{
-					//Gets endX and endY
-					endX=event.getX();
-					endY=event.getY();
-
-					if(c_board.getPiece((int)(endX/(getWidth()/8.0)), (int)(endY/(getHeight()/8.0)))== 0) {
-										
-						// Code for handling jump chaining
-						if(c_board.jumped()) {
-							c_board.tryJump(startX,endX,startY,endY);
-							}
-						else if(c_board.makeJump()) {
-							c_board.tryJump(startX,endX,startY,endY);
-							}
-						else {
-							c_board.tryMove(startX,endX,startY,endY);
-							}
 						}
-							chosenPiece = false;
-					}
-				}
+						else{
+								//Gets endX and endY
+							endX=event.getX();
+							endY=event.getY();
+			
+							if(c_board.getPiece((int)(endX/(getWidth()/8.0)), (int)(endY/(getHeight()/8.0)))== 0) {
+													
+								// Code for handling jump chaining
+								if(c_board.jumped()) {
+									c_board.tryJump(startX,endX,startY,endY);
+								}
+								else if(c_board.makeJump()) {
+									c_board.tryJump(startX,endX,startY,endY);
+								}
+								else {
+									c_board.tryMove(startX,endX,startY,endY);
+								}
+							}
+								chosenPiece = false;
+						}
+						}
 			}
 			
 		});
-			
+		
+		
+		
 	}
 	
 	// overridden version of the resize method
@@ -273,15 +372,15 @@ class CheckersControl extends Control {
 
 	}
 	
-	// private fields of a Checkers board
+	// private fields of a reversi board
 	CheckersBoard c_board;
 	private boolean chosenPiece;
 	private double startX, startY;
 	private double endX , endY;
 }
 
-//class definition for a skin for the Checkers control
-//NOTE: to keep JavaFX happy we don't use the skin here
+// class definition for a skin for the reversi control
+// NOTE: to keep JavaFX happy we dont use the skin here
 class CheckersControlSkin extends SkinBase<CheckersControl> {
 	// default constructor for the class
 	public CheckersControlSkin(CheckersControl rc) {
@@ -289,7 +388,7 @@ class CheckersControlSkin extends SkinBase<CheckersControl> {
 	}
 }
 
-//class definition for the Checkers board
+// class definition for the reversi board
 class CheckersBoard extends Pane {
 	// default constructor for the class
 	public CheckersBoard() {
@@ -301,7 +400,7 @@ class CheckersBoard extends Pane {
 		vertical_t = new Translate[8];	
 		surrounding = new int[3][3];	
 		makeJump = new boolean[8][8];
-	
+
 		initialiseLinesBackground();
 		initialiseRender();
 		resetGame();
@@ -329,61 +428,144 @@ class CheckersBoard extends Pane {
 				pieceResizeRelocate();
 
 	}
- 	public void loadGame(){
+public void loadGame(){
 		
- 		try{
+		// code for loading the file into the game
+		
+		System.out.println("loading...");	
+		
+		
+	int x = 0;
+        int y = 1;
+        int player = 2;
+        int size = 0;
+        int i = 0;
+        char x1;
+        char y1;
+        char player1;
+        try{
+                
+                String content = new Scanner( new File("Checkers.txt"), "UTF-8" ).useDelimiter("\\A").next();
+                size = content.length();
+                resetRenders();
+                System.out.print(content);
+                while (i <= 72)
+                        {
+                            x1 = content.charAt(x);
+                            y1 = content.charAt(y);
+                            player1 = content.charAt(player);
+                            int x2 = Character.getNumericValue(x1);
+                            int y2 = Character.getNumericValue(y1);
+                            int player2 = Character.getNumericValue(player1);
+                            render[x2][y2].setPiece(player2);
+                            x = x+3;
+                            y = y+3;
+                            player = player+3;
+                            i = i+3;
+                        }
+                
+                x= 1;
+                y=2;
+                player = 3;  
+        }
+        
+        
+        	// when loading the game, an error statement is printed but the games loads perfectly. 
+        	// i believe this is due to the way the game is saved to the text file.
+        catch(Exception e){
+	System.err.println("Error: load failed " + e.getMessage());
+        }
+                     
+        try
+        {
+            int player1sc = 0;
+            int player2sc = 0;
+            File file = new File("Checkers-score.txt");
+            FileReader fr = new FileReader(file);
+            BufferedReader br = new BufferedReader(fr);
+            String line;
+            String temp;
+            while((line = br.readLine()) != null)
+            {
+                if(line.contains("player1:"))
+                {   
+                   temp = line;
+                   temp = temp.substring(8);
+                   player1sc= Integer.parseInt(temp);
+                   player1_score = player1sc;
+                   Checkers.lbl_playerscore1.setText("Player Score: " +  player1_score);
+                   temp = "";
+                }
+                else if(line.contains("player2:"))
+                {   
+                   temp = line;
+                   temp = temp.substring(8);
+                   player2sc= Integer.parseInt(temp);
+                   player2_score = player2sc;
+                   Checkers.lbl_playerscore2.setText("Player Score: " +  player2_score);
+                   temp = "";
+                }
+            }
+            br.close();
+            fr.close();
+        }
+        catch(Exception e){
+	System.err.println("Error: load failed " + e.getMessage());
+        }
+                in_play = true;	
+                current_player = 2;
+                opposing = 1;
 
- 		//	 FileReader h = new FileReader();
-			
- 			   	 System.out.println("loading...");			
-				
- 			}
-			
- 			catch(Exception e){
- 				System.err.println("Error: load failed " + e.getMessage());
- 			}
-		
- 	}
- 	public void saveGame(){
+}
+	public void saveGame(){
+			// code for saving the positions of the pieces and scores of the players.
+		try{
+            
+		int zero = 0;
+		FileWriter saveFile = new FileWriter("Checkers.txt");
+		BufferedWriter out;
+		out = new BufferedWriter(saveFile);
 
- 		// to view file open with notepad++.
-		
- 		try{
-		
- 		FileWriter saveFile = new FileWriter("Checkers.txt");
- 		BufferedWriter out; //= new BufferedWriter(saveFile);
- 			out = new BufferedWriter(saveFile);
- 			out.write("hello");
- 			for(int i = 0; i < render.length ; i++){
- 				 for(int j = 0 ; j < render.length; j ++){
-			
- 		      out.write(" co-ords: " + i + " " +j + " "+getPiece(i,j) + " ");
- 		 }
- 		 }
-			 
- 			 out.write(" scores: " + player1_score + " "+ player2_score + " ");
- 		   	 out.flush();
- 		   	 System.out.println("saving...");
- 			 out.close();
-		
-			
- 		}
-		
- 		catch(Exception e){
- 			System.err.println("Error: saved failed " + e.getMessage());
- 		}
-		
- 	}
-
+		for(int x = 0; x < render.length ; x++){
+			 for(int j = 0 ; j < render.length; j ++){
+                  if(getPiece(x,j) == zero)
+                 {                                        
+                 }
+                 else{                                     
+                    out.write(x +""+j+""+getPiece(x,j)+"");
+                    }
+             }
+          }
+          System.out.println("Saving...");
+          out.close();
+          System.out.println("Game Saved");
+            }
 	
+		catch(Exception e){
+			System.err.println("Error: saved failed " + e.getMessage());
+		}
+                try{
+                    int player1score;
+                    int player2score;
+                    
+                    player1score = Checkers.rc_checkers.score1();
+                    player2score = Checkers.rc_checkers.score2();
+
+                    BufferedWriter savescore = new BufferedWriter(new FileWriter("Checkers-score.txt"));
+                    savescore.write("player2:"+String.valueOf(player2score)+'\n'+"player1:"+String.valueOf(player1score));
+                    System.out.println("Saving...");
+                    savescore.close();
+                    System.out.println("Score Saved");
+                }
+                catch(Exception e){
+			System.err.println("Error: saved failed " + e.getMessage());
+		}
+	}
 	// public method for resetting the game
 	public void resetGame() {
 		System.out.println("Reset");
-
-//Resets the board
-		resetRenders();
 		
-//Resets the pieces and their positions		
+		resetRenders();
 		render[0][0].setPiece(1);
 		render[2][0].setPiece(1);
 		render[4][0].setPiece(1);
@@ -410,23 +592,28 @@ class CheckersBoard extends Pane {
 		render[5][7].setPiece(2);
 		render[7][7].setPiece(2);
 		
-//Resets any crowned pieces 
 		for(int i=0;i<8;i++) {
-			for(int j=0;j<8;j++){
-				render[i][j].deThroned();
-			}
+				for(int j=0;j<8;j++){
+					render[i][j].deThroned();
+				}
 		}
-
-//Sets initial values
+		
+		
 		in_play = true;	
 		current_player = 2;
 		opposing = 1;
-		player1_score = 2;
-		player2_score = 2;
+		player1_score = 12;
+		player2_score = 12;
+	//	updateScores();
+		
+		 Checkers.lbl_playerscore2.setText("Player score: 12");
+		 Checkers.lbl_playerscore1.setText("Player score: 12");
+		 Checkers.lbl_turn.setText("Playing: "+ Checkers.lbl_playername2.getText()+ " Red");
+		
 
 	}
 	
-//Method that will reset the renders
+	// private method that will reset the renders
 	private void resetRenders() {
 		
 		for(int i = 0; i < 8; i++) {
@@ -437,8 +624,9 @@ class CheckersBoard extends Pane {
 		}
 	}
 	
-//Method that will initialize the background and the lines
+	// private method that will initialise the background and the lines
 	private void initialiseLinesBackground() {
+		
 		
 		for(int j = 0; j< 8 ;j++){
 		horizontal [j]= new Line(); horizontal_t [j]= new Translate(0,0);
@@ -448,10 +636,12 @@ class CheckersBoard extends Pane {
 		vertical[j].getTransforms().add(vertical_t[j]);
 		getChildren().addAll(vertical[j]);
 		
+		
+	
 		}
 	}
 	
-//Method for resizing and relocating the horizontal lines
+	// private method for resizing and relocating the horizontal lines
 	private void horizontalResizeRelocate(final double width) {
 
 			for(int j = 0; j < 8; j++) {
@@ -460,7 +650,7 @@ class CheckersBoard extends Pane {
 			}			
 	}
 	
-// Method for resizing and relocating the vertical lines
+	// private method for resizing and relocating the vertical lines
 	private void verticalResizeRelocate(final double height) {
 	
 			for(int j = 0; j < 8; j++) {
@@ -469,250 +659,273 @@ class CheckersBoard extends Pane {
 			}		
 	}
 	
-//Method for swapping the players
+	// private method for swapping the players
 	private void swapPlayers() {
 			
-		int swp = current_player;
-		current_player = opposing;
-		opposing = swp;
+	int swp = current_player;
+        if(swp == 2)
+        {
+Checkers.lbl_turn.setText("Playing: "+ Checkers.lbl_playername1.getText()+ " White");
+}
+else if(swp == 1) 
+        {
+Checkers.lbl_turn.setText("Playing: "+ Checkers.lbl_playername2.getText()+ " Red");
+}
+current_player = opposing;
+opposing = swp;
+Checkers.lbl_playerscore1.setText("Player Score: " +  Checkers.rc_checkers.score1());
+Checkers.lbl_playerscore2.setText("Player Score: " +  Checkers.rc_checkers.score2());
 
 	}
 	
-//Method for updating the player scores
+	// private method for updating the player scores
 	private void updateScores() {
+		
 		player1_score = 0;
 		player2_score = 0;
 		
 		for(int i = 0; i < 8; i++) {
-			for(int j = 0; j < 8; j++) {
+			for(int j = 0; j < 8; j++) {			
 				if(render[i][j].getPiece() == 1){
 					player1_score ++;
 				}
-				if(render[i][j].getPiece() == 2){
+				if(render[i][j].getPiece()== 2){
 					player2_score ++;
 				}	
 			}
 		}
-
+		
+		
 	}
 	
-//Method for resizing and relocating all the pieces
+	
+	// private method for resizing and relocating all the pieces
 	private void pieceResizeRelocate() {
 				
 		for(int i = 0; i < 8; i++) {
 			for(int j = 0; j < 8; j++) {
-				render[i][j].relocate(i * cell_width, j* cell_height);
+				render[i][j].relocate(i * cell_width, j * cell_height);
 				render[i][j].resize(cell_width, cell_height);	
 				render[i][j].setBackground(i,j);
 			}
 		}
 
 	}
-
 	public int getPiece(final int x, final int y) {
-// If the x value or y value is out of range then return -1 otherwise return the board piece
-		if(x < 0 || x >= 8 || y < 0 || y >= 8)
-			return -1;
-		else
-			return render[x][y].getPiece();
-
-	}
+		// If the x value or y value is out of range then return -1 otherwise return the board piece
+				if(x < 0 || x >= 8 || y < 0 || y >= 8)
+					return -1;
+				else
+					return render[x][y].getPiece();
+		
+			}
 	
-//Method to check if a move is possible to make and makes it
-	public void tryMove(double X1, double X2,double Y1,double Y2){
-		// get a new cell width and cell height
-		cell_width = getWidth() / 8.0;
-		cell_height = getHeight() / 8.0;
-
-		int x1 = (int) (X1 / cell_width); 
-		int x2 = (int) (X2 / cell_width);
-		int y1 = (int) (Y1 / cell_height);
-		int y2 = (int) (Y2 / cell_height);
-
-		if(!render[x1][y1].isCrowned()){ 
-			// get offsets
-			if((current_player==1 && x2-x1==1 && y2-y1==1)
-					||(current_player==1 && x2-x1==-1 && y2-y1==1)
-					||(current_player==2 && x2-x1==-1 && y2-y1==-1)
-					||(current_player==2 && x2-x1==1 && y2-y1==-1)) {
-				if(getPiece(x2,y2)==0 && getPiece(x1,y1)==current_player) {
-					if(y2== 0 && getPiece(x1,y1) == 2 && render[x1][y1].isCrowned()==false) {
-						render[x2][y2].crownMe();
-					}
-					else if(y2==7 && getPiece(x1,y1) ==1 && render[x1][y1].isCrowned()==false) {
-						render[x2][y2].crownMe();
-					}
-					// set original place to piece 0 which is empty
-					render[x1][y1].setPiece(0);
-					// set new position to the current player
-					render[x2][y2].setPiece(current_player);
-					// swap the players
-					swapPlayers();
-				}
-			}
-		}
-// Else statement that allows a crowned piece to move in all 4 directions
-		else
-			if((x2-x1==1 && y2-y1==1)||(x2-x1==-1 && y2-y1==1)
-			||(x2-x1==-1 && y2-y1==-1)||(x2-x1==1 && y2-y1==-1)) {
-				if(getPiece(x2,y2)==0) {
-					render[x2][y2].crownMe();
-					render[x1][y1].setPiece(0);
-					render[x2][y2].setPiece(current_player);
-					swapPlayers();
-				}
-			}
-	}
- 
-//Method to tryJump 
-	public void tryJump(double X1, double X2,double Y1,double Y2){
-		// get a new cell width and cell height
-		cell_width = getWidth() / 8.0;
-		cell_height = getHeight() / 8.0;
-
-		boolean wasCrowned = false;
-		int x1 = (int) (X1 / cell_width); 
-		int x2 = (int) (X2 / cell_width);
-		int y1 = (int) (Y1 / cell_height);
-		int y2 = (int) (Y2 / cell_height);
-
-		if(render[x1][y1].isCrowned()) {
-			wasCrowned = true;
-		}
-		// math.abs to get absolute value
-		if(Math.abs(x2-x1) == 2 && Math.abs(y2-y1) == 2){
-			if(makeJump[x2][y2] == true) {
-				if(wasCrowned) render[x2][y2].crownMe();
-				else if(y2== 0 && getPiece(x1,y1) == 2) {
-					render[x2][y2].crownMe();
-				}
-				else if(y2==7 && getPiece(x1,y1) ==1) {
-					render[x2][y2].crownMe();
-				}
-				render[x1][y1].setPiece(0);
-				render[x1+((x2-x1)/2)][y1+((y2-y1)/2)].setPiece(0);
-				render[x2][y2].setPiece(current_player);
-				updateScores();
-				for(int i = 0; i < 8; i++) {
-					for(int j = 0; j < 8; j++) {
-						makeJump[i][j] = false;
-					}
-				}
-				// if statements to check each condition.
-				if(wasCrowned==false && render[x2][y2].isCrowned()==true) {
-					out_of_play = true;
-					swapPlayers();
-				}
-				// if no jump chain is available
-				else if(!jumpChain(x2,y2)) {
-					out_of_play = false;
-					swapPlayers();
-				}
-				else {
-					out_of_play = true;
-				}
-			}
-		}
-	}
+	//Method to check if a move is possible to make
+		public void tryMove(double X1, double X2,double Y1,double Y2){
+			// get a new cell width and cell height
+			cell_width = getWidth() / 8.0;
+			cell_height = getHeight() / 8.0;
 	
-//If one is possible it will make the jump by only letting you 
-// jump to those available squares.
-	   
-	 
+			int x1 = (int) (X1 / cell_width); 
+			int x2 = (int) (X2 / cell_width);
+			int y1 = (int) (Y1 / cell_height);
+			int y2 = (int) (Y2 / cell_height);
+	
+			if(!render[x1][y1].isCrowned()){ 
+				// get offsets
+				if((current_player==1 && x2-x1==1 && y2-y1==1)
+						||(current_player==1 && x2-x1==-1 && y2-y1==1)
+						||(current_player==2 && x2-x1==-1 && y2-y1==-1)
+						||(current_player==2 && x2-x1==1 && y2-y1==-1)) {
+					if(getPiece(x2,y2)==0 && getPiece(x1,y1)==current_player) {
+						if(y2== 0 && getPiece(x1,y1) == 2 && render[x1][y1].isCrowned()==false) {
+							render[x2][y2].crownMe();
+	 					}
+						else if(y2==7 && getPiece(x1,y1) ==1 && render[x1][y1].isCrowned()==false) {
+							render[x2][y2].crownMe();
+						}
+						// set original place to piece 0 which is empty
+						render[x1][y1].setPiece(0);
+						// set new position to the current player
+						render[x2][y2].setPiece(current_player);
+						// swap the players
+						swapPlayers();
+	 				}
+					// Else statement that allows a crowned piece to move in all 4 directions
+							else
+								if((x2-x1==1 && y2-y1==1)||(x2-x1==-1 && y2-y1==1)
+								||(x2-x1==-1 && y2-y1==-1)||(x2-x1==1 && y2-y1==-1)) {
+									if(getPiece(x2,y2)==0) {
+										render[x2][y2].crownMe();
+										render[x1][y1].setPiece(0);
+										render[x2][y2].setPiece(current_player);
+										swapPlayers();
+									}
+								}
+					 	}
+			}
+			
+		}
+			
+			
+	//	Method to tryJump 
+			public void tryJump(double X1, double X2,double Y1,double Y2){
+				// get a new cell width and cell height
+				cell_width = getWidth() / 8.0;
+				cell_height = getHeight() / 8.0;
+		
+				boolean wasCrowned = false;
+				int x1 = (int) (X1 / cell_width); 
+				int x2 = (int) (X2 / cell_width);
+				int y1 = (int) (Y1 / cell_height);
+				int y2 = (int) (Y2 / cell_height);
+		
+				if(render[x1][y1].isCrowned()) {
+					wasCrowned = true;
+				}
+				// math.abs to get absolute value
+				if(Math.abs(x2-x1) == 2 && Math.abs(y2-y1) == 2){
+					if(makeJump[x2][y2] == true) {
+						if(wasCrowned) render[x2][y2].crownMe();
+						else if(y2== 0 && getPiece(x1,y1) == 2) {
+							render[x2][y2].crownMe();
+						}
+						else if(y2==7 && getPiece(x1,y1) ==1) {
+							render[x2][y2].crownMe();
+					}
+						render[x1][y1].setPiece(0);
+						render[x1+((x2-x1)/2)][y1+((y2-y1)/2)].setPiece(0);
+						render[x2][y2].setPiece(current_player);
+						updateScores();
+						for(int i = 0; i < 8; i++) {
+							for(int j = 0; j < 8; j++) {
+								makeJump[i][j] = false;
+				}
+				}
+				
+						// if statements to check each condition.
+										if(wasCrowned==false && render[x2][y2].isCrowned()==true) {
+											out_of_play = true;
+											swapPlayers();
+										}
+										// if no jump chain is available
+										else if(!jumpChain(x2,y2)) {
+											out_of_play = false;
+											swapPlayers();
+										}
+										else {
+											out_of_play = true;
+										}
+									}
+			
+								}
+				
+			
+			}
+			
+			/* 
+				   The logic of this method: this method will determine if a jump is possible on the board. If one is possible it
+				   will return the square _to which_ a jump is possible. Attempt jump will lock you into selecting one of these squares
+				   
+				  */
 	public boolean makeJump() {
-		boolean found = false;
+					
+//	updateScores();
+					
+	boolean found = false;
 		for(int i = 0; i < 8; i++) {
-			for(int j = 0; j < 8; j++) {
-				if(render[i][j].getPiece() == current_player) {
-					if(!render[i][j].isCrowned()) {
-						if(current_player==1 && getPiece(i+1,j+1)==opposing && getPiece(i+2,j+2)==0) {
+		for(int j = 0; j < 8; j++) {
+			if(render[i][j].getPiece() == current_player) {
+				if(!render[i][j].isCrowned()) {
+					if(current_player==1 && getPiece(i+1,j+1)==opposing && getPiece(i+2,j+2)==0) {
 							makeJump[i+2][j+2] = true;
-							found = true;
-						}
-						else if(current_player==1 && getPiece(i-1,j+1)==opposing && getPiece(i-2,j+2)==0) {
-							makeJump[i-2][j+2] = true;
-							found = true;
-						}
-						else if(current_player==2 && getPiece(i-1,j-1)==opposing && getPiece(i-2,j-2)==0) {
-							makeJump[i-2][j-2] = true;
-							found = true;
-						}
-						else if(current_player==2 && getPiece(i+1,j-1)==opposing && getPiece(i+2,j-2)==0) {
-							makeJump[i+2][j-2] = true;
-							found = true;
-						}
+								found = true;
 					}
-					else {
-						if(getPiece(i+1,j+1)==opposing && getPiece(i+2,j+2)==0) {
-							makeJump[i+2][j+2] = true;
-							found = true;
-						}
-						else if(getPiece(i-1,j+1)==opposing && getPiece(i-2,j+2)==0) {
+					else if(current_player==1 && getPiece(i-1,j+1)==opposing && getPiece(i-2,j+2)==0) {
 							makeJump[i-2][j+2] = true;
-							found = true;
-						}
-						else if(getPiece(i-1,j-1)==opposing && getPiece(i-2,j-2)==0) {
-							makeJump[i-2][j-2] = true;
-							found = true;
-						}
-						else if(getPiece(i+1,j-1)==opposing && getPiece(i+2,j-2)==0) {
-							makeJump[i+2][j-2] = true;
-							found = true;
-						}
+								found = true;
 					}
+					else if(current_player==2 && getPiece(i-1,j-1)==opposing && getPiece(i-2,j-2)==0) {
+							makeJump[i-2][j-2] = true;
+								found = true;
+					}
+					else if(current_player==2 && getPiece(i+1,j-1)==opposing && getPiece(i+2,j-2)==0) {
+							makeJump[i+2][j-2] = true;
+								found = true;
+					}
+				}
+			else {
+				if(getPiece(i+1,j+1)==opposing && getPiece(i+2,j+2)==0) {
+					makeJump[i+2][j+2] = true;
+						found = true;
+				}
+				else if(getPiece(i-1,j+1)==opposing && getPiece(i-2,j+2)==0) {
+					makeJump[i-2][j+2] = true;
+						found = true;
+				}
+				else if(getPiece(i-1,j-1)==opposing && getPiece(i-2,j-2)==0) {
+					makeJump[i-2][j-2] = true;
+						found = true;
+				}
+				else if(getPiece(i+1,j-1)==opposing && getPiece(i+2,j-2)==0) {
+					makeJump[i+2][j-2] = true;
+						found = true;
 				}
 			}
 		}
-			return found;
+		}
+		}
+		return found;
+						
+	
 	}
-
-	// method for jump chaining
+				// method for jump chaining
 	public boolean jumpChain(int x, int y) {
 		boolean found2 = false;
-
 		int i = x;
 		int j = y;
-
+						
 		if(!render[i][j].isCrowned()) {
 			if(current_player==1 && getPiece(i+1,j+1)==opposing && getPiece(i+2,j+2)==0) {
-				makeJump[i+2][j+2] = true;
-				found2 = true;
+						makeJump[i+2][j+2] = true;
+							found2 = true;
 			}
 			else if(current_player==1 && getPiece(i-1,j+1)==opposing && getPiece(i-2,j+2)==0) {
-				makeJump[i-2][j+2] = true;
-				found2 = true;
+						makeJump[i-2][j+2] = true;
+							found2 = true;
 			}
 			else if(current_player==2 && getPiece(i-1,j-1)==opposing && getPiece(i-2,j-2)==0) {
-				makeJump[i-2][j-2] = true;
-				found2 = true;
+						makeJump[i-2][j-2] = true;
+							found2 = true;
 			}
 			else if(current_player==2 && getPiece(i+1,j-1)==opposing && getPiece(i+2,j-2)==0) {
-				makeJump[i+2][j-2] = true;
-				found2 = true;
+						makeJump[i+2][j-2] = true;
+							found2 = true;
 			}
 		}
 		else {
+		
 			if(getPiece(i+1,j+1)==opposing && getPiece(i+2,j+2)==0) {
-				makeJump[i+2][j+2] = true;
-				found2 = true;
+						makeJump[i+2][j+2] = true;
+							found2 = true;
 			}
 			else if(getPiece(i-1,j+1)==opposing && getPiece(i-2,j+2)==0) {
-				makeJump[i-2][j+2] = true;
-				found2 = true;
+						makeJump[i-2][j+2] = true;
+							found2 = true;
 			}
 			else if(getPiece(i-1,j-1)==opposing && getPiece(i-2,j-2)==0) {
-				makeJump[i-2][j-2] = true;
-				found2 = true;
+						makeJump[i-2][j-2] = true;
+							found2 = true;
 			}
 			else if(getPiece(i+1,j-1)==opposing && getPiece(i+2,j-2)==0) {
-				makeJump[i+2][j-2] = true;
-				found2 = true;
+						makeJump[i+2][j-2] = true;
+							found2 = true;
 			}
 		}
-
+				
 		//System.out.println("Boolean found2 = "+found2);
-		return found2;
-	}
+				return found2;
+ 	}
 	// private method that will determine if the end of the game has been reached
 	private void determineEndGame() {
 		// if the board has been filled or either player has lost their pieces then
@@ -720,7 +933,18 @@ class CheckersBoard extends Pane {
 		if(player1_score + player2_score == 24 || player1_score == 0 || player2_score == 0) {
 			determineWinner();
 		}
-		
+		else if(player1_score == player2_score){
+			
+			if(makeJump()) {
+				return;
+			} else {
+				swapPlayers();
+				if(!makeJump())
+					determineWinner();
+			
+			}	
+			
+		}
 		// see if the current player can make a move if not see if the opposing player can make a move
 		// if neither can make a move then we have reached end game
 		if(makeJump()) {
@@ -729,18 +953,19 @@ class CheckersBoard extends Pane {
 			swapPlayers();
 			if(!makeJump())
 				determineWinner();
+		
 		}	
 	}
 	public int score1() {
-		return player1_score;
-	}
+			return player1_score;
+		}
 	public int score2() {
-		return player2_score;
-	}
+			return player2_score;
+		}
 	public boolean canJump(int i, int j) {
 		return makeJump[i][j];
+		
 	}
-	
 	public int current_player() {
 		return current_player;
 	}
@@ -751,26 +976,69 @@ class CheckersBoard extends Pane {
 	public boolean in_play() {
 		return in_play;
 	}
-	
 	public boolean jumped(){
 		return out_of_play;
 	}
 	
 	// private method that determines who has won the game
 	private void determineWinner() {
-			if(player1_score > player2_score){
+			if(player1_score > player2_score){	
+			
+		// pop code to let the player know the games ended in a in player one winning
+		final Stage dialogStage = new Stage();
+                dialogStage.initModality(Modality.APPLICATION_MODAL);
+                dialogStage.setTitle("Checkers");
+
+                Label drwLabel = new Label("Congratulations Player 1, you have won the game!");
+                drwLabel.setAlignment(Pos.BASELINE_CENTER);
+               
+                HBox hBox = new HBox();
+                hBox.setAlignment(Pos.BASELINE_CENTER);
+                hBox.setSpacing(40.0);
+     
+                VBox vBox = new VBox();
+                vBox.setSpacing(40.0);
+                vBox.getChildren().addAll(drwLabel, hBox);
+                dialogStage.setScene(new Scene(vBox));
+                dialogStage.show();
+            	
+				
+			
 				System.out.println("Player 1 wins");
-				System.out.println("Game haas ended");
+				System.out.println("Game has ended");
+			}
+			else if (player1_score < player2_score){
+					// pop code to let the player know the games ended in a in player two winning
+
+		final Stage dialogStage = new Stage();
+                dialogStage.initModality(Modality.APPLICATION_MODAL);
+                dialogStage.setTitle("Checkers");
+
+                Label drwLabel = new Label("Congratulations Player 2, you have won the game!");
+                drwLabel.setAlignment(Pos.BASELINE_CENTER);
+               
+                HBox hBox = new HBox();
+                hBox.setAlignment(Pos.BASELINE_CENTER);
+                hBox.setSpacing(40.0);
+
+                VBox vBox = new VBox();
+                vBox.setSpacing(40.0);
+                vBox.getChildren().addAll(drwLabel, hBox);
+                dialogStage.setScene(new Scene(vBox));
+                dialogStage.show();
+            	
+		System.out.println("Player 2 wins");
+		System.out.println("Game has ended");
 			}
 			else{
-				System.out.println("Player 2 wins");
-			System.out.println("Game haas ended");
+				System.out.println("Game has ended in a draw");
 			}
 	}
 
 	// private method that will initialise everything in the render array
 	private void initialiseRender() {
 		
+
 		render = new CheckersPiece[8][8];
 		for(int i = 0; i < 8; i++)
 		for(int j = 0; j < 8; j++) {
@@ -779,10 +1047,9 @@ class CheckersBoard extends Pane {
 		}		
 	}
 	
-	//returns an in_play value
 	public void inPlay(boolean inplay){
-		in_play = inplay;
-	}
+				in_play = inplay;
+			}
 	
 	// arrays for the lines that makeup the horizontal and vertical grid lines
 	private Line[] horizontal;
@@ -809,20 +1076,18 @@ class CheckersBoard extends Pane {
 	private double cell_height;
 	// 3x3 array that holds the pieces that surround a given piece
 	private int[][] surrounding;
-	// array that determines if a reverse can be made in any direction
 	private boolean[][] makeJump;
 }
 
-//class definition for a reversi piece
+// class definition for a reversi piece
 class CheckersPiece extends Group {
 	
 	// default constructor for the class
 	public CheckersPiece(int player) {
 	
 		this.player = player;
-		
 		t = new Translate();
-	
+		
 		background = new Rectangle(); 
 		background.getTransforms().add(t);
 		
@@ -873,6 +1138,7 @@ class CheckersPiece extends Group {
 		
 		background.setWidth(width);background.setHeight(height);
 	
+
 	}
 	
 	// overridden version of the relocate method to position the piece correctly
@@ -903,82 +1169,76 @@ class CheckersPiece extends Group {
 		
 		player = type;
 		
-//This if statement set up the pieces once they are crowned
-		if (isCrowned() == true){
-			if(player == 1) {
-				piece.setFill(Color.IVORY);
-				piece.setVisible(true);
-				
-				crown.setFill(Color.DARKRED);
-				crown.setVisible(true);
-			
+		//This if statement set up the pieces once they are crowned
+			if (isCrowned() == true){
+					if(player == 1) {
+						piece.setFill(Color.IVORY);
+						piece.setVisible(true);
+						
+						crown.setFill(Color.DARKRED);
+						crown.setVisible(true);
+		
 			}
-			
 			else if (player == 2) {
 				piece.setFill(Color.DARKRED);
 				piece.setVisible(true);
-				
+										
 				crown.setFill(Color.IVORY);
 				crown.setVisible(true);
-				
-				}
-			else {
+			}				
+		
+			else{
 				piece.setVisible(false);
-				
 				crown.setVisible(false);
-				
-				}
 			}
-// This else statement just sets up the standard pieces
-		else{
-			crown.setVisible(false);
-			if(player == 1) {
-				piece.setFill(Color.IVORY);
-				piece.setVisible(true);
 			}
-		
-			else if (player == 2) {
-				piece.setFill(Color.DARKRED);
-				piece.setVisible(true);
-		
-			}
-			else {
-				piece.setVisible(false);			
-			}
-		}
-	}
 			
+			else{
+				crown.setVisible(false);
+						if(player == 1) {
+							piece.setFill(Color.IVORY);
+							piece.setVisible(true);
+							}
+						
+							else if (player == 2) {
+								piece.setFill(Color.DARKRED);
+								piece.setVisible(true);
+						
+							}
+							else {
+								piece.setVisible(false);			
+							}
+			}	
+	}
 	 public void setBackground(int i, int j){
 		
-//Sets up the alternating squares on the checkers board				
-			if(i%2==0 && j%2==0){
-				background.setFill(Color.BLACK);
+		//Sets up the alternating squares on the checkers board				
+		 			if(i%2==0 && j%2==0){
+		 				background.setFill(Color.BLACK);
+		 			}
+		 			else if(i%2==0 && j%2!=0){
+		 			background.setFill(Color.BLANCHEDALMOND);
 				}
-			else if(i%2==0 && j%2!=0){
-				background.setFill(Color.BLANCHEDALMOND);
+		 			else if(i%2!=0 && j % 2!=0){
+					background.setFill(Color.BLACK);
 				}
-			else if(i%2!=0 && j % 2!=0){
-				background.setFill(Color.BLACK);
-				}
-			else if (i %2!=0 && j%2==0){
-				background.setFill(Color.BLANCHEDALMOND);
-			}		
+		 			else if (i %2!=0 && j%2==0){
+					background.setFill(Color.BLANCHEDALMOND);
+		 		}		
+			
+			
 	 }
 	// returns the type of this piece
 	public int getPiece() {
 		// NOTE: this is to keep the compiler happy until you get to this point
 		return player;
 	}
-	
 	public void crownMe(){
 		isCrowned = true;
-	
 	}
-	
 	public boolean isCrowned(){
 		return isCrowned;
 	}
-	
 	public void setCrown (boolean value){
 		isCrowned = value;
 	}
@@ -994,6 +1254,4 @@ class CheckersPiece extends Group {
 	private Rectangle background; // rectangle that makes the background of the board
 	private boolean isCrowned;
 	private Translate t;	// translation for the player piece
-	
-	
 }
